@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Moon, Sun } from "lucide-react";
 
@@ -6,27 +6,20 @@ export default function NavBar() {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
-  const [isDark, setIsDark] = useState(document.documentElement.classList.contains("dark"));
 
+  const [isDark, setIsDark] = useState(false);
+
+  
   useEffect(() => {
-    // Update state whenever dark class changes
-    const observer = new MutationObserver(() => {
-      setIsDark(document.documentElement.classList.contains("dark"));
-    });
-    
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
-    return () => observer.disconnect();
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "dark") {
+      document.documentElement.classList.add("dark");
+      setIsDark(true);
+    }
   }, []);
 
-  const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("role");
-    navigate("/login");
-  };
-
   const toggleDarkMode = () => {
-    const isDarkNow = document.documentElement.classList.contains("dark");
-    if (isDarkNow) {
+    if (document.documentElement.classList.contains("dark")) {
       document.documentElement.classList.remove("dark");
       localStorage.setItem("theme", "light");
       setIsDark(false);
@@ -37,32 +30,57 @@ export default function NavBar() {
     }
   };
 
+  const logout = () => {
+    localStorage.clear();
+    navigate("/login");
+  };
+
   return (
-    <nav className="bg-white dark:bg-gray-800 shadow transition-colors">
-      <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-        <Link to="/" className="font-bold text-xl dark:text-white">SweetShop</Link>
-        <div className="flex items-center gap-3">
+    <nav className="bg-white dark:bg-gray-900 shadow transition-colors">
+      <div className="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+        <Link to="/" className="font-bold text-xl dark:text-white">
+          SweetShop 🍬
+        </Link>
+
+        <div className="flex items-center gap-4">
           <button
             onClick={toggleDarkMode}
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-            title="Toggle dark mode"
+            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
           >
-            {isDark ? <Sun size={20} className="text-yellow-400" /> : <Moon size={20} className="text-gray-600" />}
-          </button>
-          <div className="space-x-3">
-            {token ? (
-              <>
-                <Link to="/dashboard" className="px-3 py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white transition-colors">Dashboard</Link>
-                {role === "ADMIN" && <Link to="/admin" className="px-3 py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white transition-colors">Admin</Link>}
-                <button onClick={logout} className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition-colors">Logout</button>
-              </>
+            {isDark ? (
+              <Sun className="text-yellow-400" />
             ) : (
-              <>
-                <Link to="/login" className="px-3 py-1 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Login</Link>
-                <Link to="/register" className="px-3 py-1 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Register</Link>
-              </>
+              <Moon className="text-gray-700 dark:text-gray-300" />
             )}
-          </div>
+          </button>
+
+          {token ? (
+            <>
+              <Link to="/dashboard" className="dark:text-white">
+                Dashboard
+              </Link>
+              {role === "ADMIN" && (
+                <Link to="/admin" className="dark:text-white">
+                  Admin
+                </Link>
+              )}
+              <button
+                onClick={logout}
+                className="bg-red-500 text-white px-3 py-1 rounded"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/login" className="dark:text-white">
+                Login
+              </Link>
+              <Link to="/register" className="dark:text-white">
+                Register
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </nav>
